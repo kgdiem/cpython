@@ -17,8 +17,14 @@ typedef struct {
 } _PyUOpInstruction;
 
 typedef struct {
+    PyObject_HEAD
+    Py_ssize_t ob_size;  // Number of elements in the object
+    _PyUOpInstruction ob_items[1];  // Placeholder for variable-sized array elements
+} Trace;
+
+typedef struct {
     _PyExecutorObject base;
-    _PyUOpInstruction trace[_Py_UOP_MAX_TRACE_LENGTH];  // TODO: variable length
+    Trace trace;  // TODO: variable length
 } _PyUOpExecutorObject;
 
 _PyInterpreterFrame *_PyUopExecute(

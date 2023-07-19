@@ -320,8 +320,8 @@ static Py_ssize_t
 uop_len(_PyUOpExecutorObject *self)
 {
     int count = 0;
-    for (; count < _Py_UOP_MAX_TRACE_LENGTH; count++) {
-        if (self->trace[count].opcode == 0) {
+    for (; count < self->trace.ob_size; count++) {
+        if (self->trace.ob_items[count].opcode == 0) {
             break;
         }
     }
@@ -336,7 +336,7 @@ uop_item(_PyUOpExecutorObject *self, Py_ssize_t index)
         PyErr_SetNone(PyExc_IndexError);
         return NULL;
     }
-    const char *name = uop_name(self->trace[index].opcode);
+    const char *name = uop_name(self->trace.ob_items[index].opcode);
     if (name == NULL) {
         name = "<nil>";
     }
@@ -344,12 +344,12 @@ uop_item(_PyUOpExecutorObject *self, Py_ssize_t index)
     if (oname == NULL) {
         return NULL;
     }
-    PyObject *oparg = PyLong_FromUnsignedLong(self->trace[index].oparg);
+    PyObject *oparg = PyLong_FromUnsignedLong(self->trace.ob_items[index].oparg);
     if (oparg == NULL) {
         Py_DECREF(oname);
         return NULL;
     }
-    PyObject *operand = PyLong_FromUnsignedLongLong(self->trace[index].operand);
+    PyObject *operand = PyLong_FromUnsignedLongLong(self->trace.ob_items[index].operand);
     if (operand == NULL) {
         Py_DECREF(oparg);
         Py_DECREF(oname);
@@ -702,10 +702,9 @@ uop_optimize(
         return -1;
     }
     executor->base.execute = _PyUopExecute;
-    memcpy(executor->trace, trace, trace_length * sizeof(_PyUOpInstruction));
-        if (trace_length < _Py_UOP_MAX_TRACE_LENGTH) {
-            executor->trace[trace_length].opcode = 0;  // Sentinel
-        }
+
+    executor->trace.ob_items[trace_length].opcode = 0;  // Sentinel
+
     *exec_ptr = (_PyExecutorObject *)executor;
     return 1;
 }

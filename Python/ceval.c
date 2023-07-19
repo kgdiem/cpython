@@ -2751,9 +2751,9 @@ _PyUopExecute(_PyExecutorObject *executor, _PyInterpreterFrame *frame, PyObject 
     uint64_t operand;
 
     for (;;) {
-        opcode = self->trace[pc].opcode;
-        oparg = self->trace[pc].oparg;
-        operand = self->trace[pc].operand;
+        opcode = self->trace.ob_items[pc].opcode;
+        oparg = self->trace.ob_items[pc].oparg;
+        operand = self->trace.ob_items[pc].operand;
         DPRINTF(3,
                 "%4d: uop %s, oparg %d, operand %" PRIu64 ", stack_level %d\n",
                 pc,
